@@ -4,153 +4,84 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>988988.NET 导航</title>
-  <meta name="description" content="纯净版导航站点">
-  
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
-
+  
   <style>
-    /* 1. 全局变量：极简配置 */
-    :root {
-      --bg: #f6f7fb;
-      --card-bg: #ffffff;
-      --text: #111111;
-      --text-sub: #6b7280;
-      --primary: #2563eb;
-      --border: #e5e7eb;
-      --shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-    }
-
-    /* 深色模式适配 */
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #111827;
-        --card-bg: #1f2937;
-        --text: #f3f4f6;
-        --text-sub: #9ca3af;
-        --primary: #3b82f6;
-        --border: #374151;
-      }
-    }
-
-    /* 2. 基础重置 */
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.5;
-    }
-
-    main { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
-
-    /* 3. 顶部布局 */
-    header { 
-      display: flex; 
-      flex-wrap: wrap; 
-      align-items: center; 
-      justify-content: space-between; 
-      gap: 15px; 
-      margin-bottom: 25px; 
-    }
-
-    h1 { font-size: 22px; margin: 0; color: var(--primary); font-weight: 700; }
-
-    .controls { display: flex; align-items: center; gap: 10px; flex: 1; justify-content: flex-end; }
+    /* 全局变量：方便换色 */
+    :root { --bg:#f6f7fb; --card:#fff; --text:#111; --sub:#6b7280; --main:#2563eb; --line:#e5e7eb; --shadow:0 4px 6px -1px rgba(0,0,0,0.05); }
+    @media (prefers-color-scheme: dark) { :root { --bg:#111827; --card:#1f2937; --text:#f3f4f6; --sub:#9ca3af; --main:#3b82f6; --line:#374151; } }
     
-    /* 搜索框 */
-    .search-box { width: 100%; max-width: 260px; position: relative; }
-    input[type=search] {
-      width: 100%;
-      padding: 8px 14px;
-      border-radius: 99px;
-      border: 1px solid var(--border);
-      background: var(--card-bg);
-      color: var(--text);
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    input[type=search]:focus { border-color: var(--primary); }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--text); line-height:1.5; }
+    * { box-sizing:border-box; outline:none; }
+    a { text-decoration:none; color:inherit; }
 
-    /* Admin 按钮 (SVG图标) */
-    .admin-icon {
-      display: flex; align-items: center; justify-content: center;
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      color: var(--text-sub);
-      transition: all 0.2s;
-      flex-shrink: 0;
-    }
-    .admin-icon:hover { color: var(--primary); border-color: var(--primary); transform: rotate(15deg); }
-    .admin-icon svg { width: 18px; height: 18px; }
+    /* --- 1. 核心状态控制 --- */
+    /* 默认隐藏主内容，只有验证通过才显示 */
+    #app { display:none; max-width:1100px; margin:30px auto; padding:0 20px; }
+    body.unlocked #app { display:block; animation:fadeIn 0.4s ease; }
+    body.unlocked #lock-layer { display:none !important; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
 
-    /* 4. 分类栏 */
-    nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 30px; }
-    .chip {
-      padding: 5px 12px;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      background: var(--card-bg);
-      color: var(--text);
-      font-size: 13px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .chip:hover, .chip[aria-current="true"] { border-color: var(--primary); color: var(--primary); }
-    .chip[aria-current="true"] { background: var(--primary); color: #fff; }
+    /* --- 2. 锁屏层 --- */
+    #lock-layer { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; }
+    .lock-box { background:var(--card); padding:30px; border-radius:12px; border:1px solid var(--line); text-align:center; width:90%; max-width:320px; box-shadow:var(--shadow); }
+    .lock-input { width:100%; padding:12px; margin:20px 0; border:1px solid var(--line); border-radius:8px; text-align:center; background:var(--card); color:var(--text); font-size:16px; transition:0.2s; }
+    .lock-input:focus { border-color:var(--main); }
+    .lock-btn { width:100%; padding:12px; background:var(--main); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:bold; transition:opacity 0.2s; }
+    .lock-btn:hover { opacity:0.9; }
+    .shake { animation:shake 0.4s ease-in-out; border-color:#ef4444 !important; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
 
-    /* 5. 内容区域 */
-    section { margin-bottom: 30px; }
-    h2 { font-size: 15px; margin: 0 0 12px; border-left: 3px solid var(--primary); padding-left: 10px; }
+    /* --- 3. 顶部导航 --- */
+    header { display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; flex-wrap:wrap; gap:15px; }
+    h1 { margin:0; color:var(--main); font-size:22px; font-weight:700; }
+    .controls { display:flex; align-items:center; gap:10px; flex:1; justify-content:flex-end; }
     
-    ul {
-      list-style: none; padding: 0; margin: 0;
-      display: grid; 
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
-      gap: 12px;
-    }
+    .search-box { width:100%; max-width:260px; }
+    #search { width:100%; padding:8px 15px; border-radius:99px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:14px; transition:border-color 0.2s; }
+    #search:focus { border-color:var(--main); }
 
-    /* 卡片设计 */
-    a.card {
-      display: flex; align-items: center;
-      text-decoration: none;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 14px;
-      color: var(--text);
-      font-size: 14px;
-      font-weight: 500;
-      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-    }
-    a.card:hover { 
-      transform: translateY(-2px); 
-      box-shadow: var(--shadow); 
-      border-color: var(--primary); 
-    }
+    .admin-icon { display:flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:50%; background:var(--card); border:1px solid var(--line); color:var(--sub); transition:all 0.2s; flex-shrink:0; }
+    .admin-icon:hover { color:var(--main); border-color:var(--main); transform:rotate(15deg); }
 
-    /* 图标与Emoji回退 */
-    .icon-img { width: 18px; height: 18px; margin-right: 10px; border-radius: 3px; object-fit: contain; }
-    .icon-text { margin-right: 10px; font-size: 16px; line-height: 1; }
+    /* --- 4. 分类与内容卡片 --- */
+    #nav { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:30px; }
+    .chip { padding:5px 12px; border:1px solid var(--line); border-radius:20px; background:var(--card); color:var(--text); cursor:pointer; font-size:13px; transition:0.2s; }
+    .chip:hover, .chip.active { background:var(--main); color:#fff; border-color:var(--main); }
+    .chip.active span { color:rgba(255,255,255,0.8); }
 
-    .hidden { display: none !important; }
-    #no-result { text-align: center; padding: 40px; color: var(--text-sub); display: none; }
+    section { margin-bottom:30px; }
+    h2 { font-size:15px; margin:0 0 12px; border-left:4px solid var(--main); padding-left:10px; font-weight:600; }
+    ul { list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px; }
     
-    footer { text-align: center; margin-top: 50px; font-size: 12px; color: var(--text-sub); padding-bottom: 20px; }
+    .card { display:flex; align-items:center; background:var(--card); border:1px solid var(--line); padding:10px 12px; border-radius:8px; font-size:14px; font-weight:500; transition:all 0.2s; }
+    .card:hover { transform:translateY(-2px); border-color:var(--main); box-shadow:var(--shadow); }
     
-    /* 移动端适配 */
-    @media(max-width: 480px) {
-      .controls { width: 100%; justify-content: space-between; }
-      .search-box { max-width: unset; flex: 1; margin-right: 10px; }
-    }
+    .icon-img { width:18px; height:18px; margin-right:10px; border-radius:3px; object-fit:contain; flex-shrink:0; }
+    .icon-txt { margin-right:10px; font-size:16px; line-height:1; }
+    
+    .hidden { display:none !important; }
+    #no-res { text-align:center; padding:50px; color:var(--sub); display:none; }
+    footer { text-align:center; margin-top:50px; font-size:12px; color:var(--sub); padding-bottom:30px; }
+    
+    @media(max-width:480px) { .controls { width:100%; justify-content:space-between; } .search-box { max-width:unset; flex:1; margin-right:10px; } }
   </style>
+
+  <script>
+    try { if (localStorage.getItem('auth_token') === 'verified') document.documentElement.className = 'unlocked'; } catch(e){}
+  </script>
 </head>
 <body>
 
-<main>
+<div id="lock-layer">
+  <div class="lock-box">
+    <div style="font-size:18px; font-weight:bold; color:var(--main)">🔒 访问受限</div>
+    <input type="password" id="pass-in" class="lock-input" placeholder="请输入密码" autofocus>
+    <button id="btn-unlock" class="lock-btn">进 入</button>
+  </div>
+</div>
+
+<div id="app">
   <header>
     <h1>导航</h1>
     <div class="controls">
@@ -158,15 +89,13 @@
         <input id="search" type="search" placeholder="搜索...">
       </div>
       <a href="https://github.com" target="_blank" class="admin-icon" aria-label="Admin">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
       </a>
     </div>
   </header>
 
-  <nav id="cats"></nav>
-  <div id="no-result">无相关结果</div>
+  <nav id="nav"></nav>
+  <div id="no-res">无相关结果</div>
 
   <section>
     <h2>AI 助手</h2>
@@ -345,130 +274,128 @@
   </section>
 
   <footer>© 988988.NET</footer>
-</main>
+</div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const searchInput = document.getElementById('search');
-  const sections = document.querySelectorAll('section');
-  const navBar = document.getElementById('cats');
-  const noResult = document.getElementById('no-result');
-  const links = document.querySelectorAll('a.card');
+(function(){
+  // --- 配置区域 ---
+  const CONFIG = {
+    PASS: "ODg4OA==", // 【修改这里】 Base64 后的密码 (默认: 8888)
+    KEY: "auth_token"
+  };
 
-  // 1. 初始化：处理图标、Target 和 分类数据
-  links.forEach(link => {
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    
-    // 图标逻辑：尝试加载 /favicon.ico，失败则换成 🌐
-    try {
-      const origin = new URL(link.href).origin;
-      const img = document.createElement('img');
-      img.className = 'icon-img';
-      img.src = `${origin}/favicon.ico`;
-      img.alt = '';
+  // --- 1. 解锁逻辑 ---
+  function initLock() {
+    if(document.documentElement.classList.contains('unlocked')){
+       document.body.classList.add('unlocked');
+    }
+
+    const input = document.getElementById('pass-in');
+    const btn = document.getElementById('btn-unlock');
+
+    const doUnlock = () => {
+      try {
+        // Base64 验证核心
+        if(btoa(String(input.value).trim()) === CONFIG.PASS){
+          document.body.classList.add('unlocked');
+          localStorage.setItem(CONFIG.KEY, 'verified');
+        } else {
+          showError();
+        }
+      } catch(e) { showError(); }
+    };
+
+    const showError = () => {
+      input.classList.add('shake');
+      input.value = '';
+      setTimeout(() => input.classList.remove('shake'), 500);
+    };
+
+    btn.onclick = doUnlock;
+    input.onkeyup = e => e.key === 'Enter' && doUnlock();
+  }
+
+  // --- 2. 核心功能 ---
+  document.addEventListener('DOMContentLoaded', () => {
+    initLock();
+
+    const nav = document.getElementById('nav');
+    const sections = document.querySelectorAll('section');
+    const search = document.getElementById('search');
+    const noRes = document.getElementById('no-res');
+
+    // 动态生成分类
+    let navHtml = '<button class="chip active" data-v="ALL">全部 <span>'+ document.querySelectorAll('.card').length +'</span></button>';
+    sections.forEach(sec => {
+      const h2 = sec.querySelector('h2');
+      if(h2) {
+        const name = h2.innerText.trim();
+        const count = sec.querySelectorAll('.card').length;
+        sec.dataset.cat = name;
+        navHtml += `<button class="chip" data-v="${name}">${name} <span style="opacity:0.6;font-size:11px">${count}</span></button>`;
+      }
+    });
+    nav.innerHTML = navHtml;
+
+    // 图标处理
+    document.querySelectorAll('.card').forEach(link => {
+      if(!link.href) return;
+      link.target = "_blank"; link.rel = "noopener noreferrer";
       
-      img.onerror = () => {
-        const fallback = document.createElement('span');
-        fallback.className = 'icon-text';
-        fallback.innerText = '🌐';
-        img.replaceWith(fallback); // 核心：失败即替换，无破图
+      const setIcon = (src) => {
+         const old = link.querySelector('.icon-img, .icon-txt');
+         if(old) old.remove();
+         
+         if(src === 'error') {
+           link.insertAdjacentHTML('afterbegin', '<span class="icon-txt">🌐</span>');
+         } else {
+           const img = new Image();
+           img.className = 'icon-img';
+           img.src = src;
+           img.onerror = () => setIcon('error');
+           link.prepend(img);
+         }
       };
-      
-      link.prepend(img);
-    } catch(e) {
-      // 极其罕见的URL解析错误
-      link.insertAdjacentHTML('afterbegin', '<span class="icon-text">🌐</span>');
-    }
-  });
-
-  // 给每个 Section 标记分类名
-  sections.forEach((sec, i) => {
-    sec.dataset.cat = sec.querySelector('h2')?.innerText.trim() || `分类${i}`;
-  });
-
-  // 2. 动态生成分类栏
-  function renderNav() {
-    navBar.innerHTML = '';
-    const btnAll = createChip('全部', links.length, 'ALL');
-    btnAll.setAttribute('aria-current', 'true');
-    navBar.appendChild(btnAll);
-
-    sections.forEach(sec => {
-      const count = sec.querySelectorAll('a.card').length;
-      navBar.appendChild(createChip(sec.dataset.cat, count, sec.dataset.cat));
+      // 优先获取 Favicon
+      try { setIcon(new URL(link.href).origin + '/favicon.ico'); } catch(e) { setIcon('error'); }
     });
-  }
 
-  function createChip(text, count, val) {
-    const btn = document.createElement('button');
-    btn.className = 'chip';
-    btn.dataset.val = val;
-    btn.innerHTML = `${text} <span style="opacity:0.6;font-size:11px;margin-left:2px">${count}</span>`;
-    return btn;
-  }
+    // 搜索与过滤
+    const filter = () => {
+      const term = search.value.trim().toLowerCase();
+      const type = nav.querySelector('.active').dataset.v;
+      let hasGlobal = false;
 
-  // 3. 核心筛选逻辑 (搜索 + 分类)
-  function filter() {
-    const term = searchInput.value.trim().toLowerCase();
-    const activeChip = navBar.querySelector('[aria-current="true"]');
-    const type = activeChip ? activeChip.dataset.val : 'ALL';
-    let foundAny = false;
+      sections.forEach(sec => {
+        const isType = type === 'ALL' || sec.dataset.cat === type;
+        let hasLocal = false;
 
-    sections.forEach(sec => {
-      const isCatMatch = (type === 'ALL' || sec.dataset.cat === type);
-      let hasVisibleLink = false;
+        sec.querySelectorAll('.card').forEach(card => {
+          const match = term 
+            ? (card.innerText.toLowerCase().includes(term) || card.href.toLowerCase().includes(term))
+            : isType;
+          card.parentElement.style.display = match ? 'block' : 'none';
+          if(match) hasLocal = true;
+        });
 
-      sec.querySelectorAll('a.card').forEach(link => {
-        // 搜索匹配：链接文字 OR 链接URL OR 分类标题
-        const matchText = link.innerText.toLowerCase().includes(term) || 
-                          link.href.toLowerCase().includes(term) ||
-                          sec.dataset.cat.toLowerCase().includes(term);
-        
-        // 显示条件：(无搜索词且分类匹配) 或者 (有搜索词且文本匹配)
-        // 逻辑解释：一旦开始搜索，分类限制自动解除，在全局查找
-        const shouldShow = term ? matchText : isCatMatch;
-        
-        link.parentElement.classList.toggle('hidden', !shouldShow);
-        if (shouldShow) hasVisibleLink = true;
+        sec.style.display = hasLocal ? 'block' : 'none';
+        if(hasLocal) hasGlobal = true;
       });
+      noRes.style.display = hasGlobal ? 'none' : 'block';
+    };
 
-      sec.classList.toggle('hidden', !hasVisibleLink);
-      if (hasVisibleLink) foundAny = true;
-    });
+    nav.onclick = (e) => {
+      const btn = e.target.closest('.chip');
+      if(!btn) return;
+      nav.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      search.value = '';
+      filter();
+    };
 
-    noResult.style.display = foundAny ? 'none' : 'block';
-    
-    // 如果是搜索状态，视觉上高亮“全部”，避免用户困惑
-    if (term && type !== 'ALL') {
-       navBar.querySelectorAll('.chip').forEach(b => 
-         b.setAttribute('aria-current', b.dataset.val === 'ALL')
-       );
-    }
-  }
-
-  // 事件监听
-  navBar.addEventListener('click', e => {
-    const btn = e.target.closest('.chip');
-    if (!btn) return;
-    searchInput.value = ''; // 切换分类时清空搜索
-    navBar.querySelectorAll('.chip').forEach(b => b.setAttribute('aria-current', 'false'));
-    btn.setAttribute('aria-current', 'true');
-    filter();
+    search.oninput = filter;
   });
-
-  searchInput.addEventListener('input', filter);
-
-  // 启动
-  renderNav();
-});
+})();
 </script>
 </body>
-
 </html>
-
-
-
-
-
-
